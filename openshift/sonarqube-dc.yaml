@@ -1,0 +1,83 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  generation: 5
+  labels:
+    app: sonarqube
+  name: sonarqube
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: sonarqube
+    deploymentconfig: sonarqube
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: sonarqube
+        deploymentconfig: sonarqube
+    spec:
+      containers:
+      - env:
+        - name: SONARQUBE_JDBC_PASSWORD
+          value: sonar
+        - name: SONARQUBE_JDBC_URL
+          value: jdbc:postgresql://postgresql/sonar
+        - name: SONARQUBE_JDBC_USERNAME
+          value: sonar
+        image: quay.io/ecerquei/sonarqube:latest
+        imagePullPolicy: Always
+        name: sonarqube
+        ports:
+        - containerPort: 9000
+          protocol: TCP
+        resources:
+          limits:
+            memory: 2000Mi
+          requests:
+            memory: 1Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /opt/sonarqube/data
+          name: sonarqube-volume-1
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: sonarqube-data
+        persistentVolumeClaim:
+          claimName: sonarqube-data
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: sonarqube-data
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${SONAR_VOLUME_CAPACITY}
+parameters:
+- description: Volume space available for SonarQube
+  displayName: SonarQube Volume Capacity
+  name: SONAR_VOLUME_CAPACITY
+  required: true
+  value: 1Gi

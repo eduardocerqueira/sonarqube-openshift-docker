@@ -1,22 +1,30 @@
-# SonarQube on OpenShift
-This repo contains all of the resources required to build an OpenShift-specific
-Docker image of SonarQube.
+# sonarqube in openshift
 
-It is inspired by the upstream SonarQube Docker image:
-https://github.com/SonarSource/docker-sonarqube
+running **sonarqube community edition version 8.0** in Openshift 
 
-# Docker Hub
+simplified version and inspired by:
+* [https://github.com/OpenShiftDemos/sonarqube-openshift-docker](https://github.com/OpenShiftDemos/sonarqube-openshift-docker)
+* [https://github.com/wkulhanek/docker-openshift-sonarqube](https://github.com/wkulhanek/docker-openshift-sonarqube) 
 
-The SonarQube image is available on Docker Hub at: https://hub.docker.com/r/openshiftdemos/sonarqube/
+### image repo
+[https://quay.io/repository/ecerquei/sonarqube](https://quay.io/repository/ecerquei/sonarqube)
 
-# Deploy on OpenShift
-You can do use the provided templates with an embedded or postgresql database to deploy SonarQube on 
-OpenShift:
+### running locally 
 
-SonarQube with Embedded H2 Database:
+for test and troubleshooting
 
-    oc new-app -f sonarqube-template.yaml --param=SONARQUBE_VERSION=6.7
+```
+# build image
+sh ops/build.sh
 
-SonarQube with PostgreSQL Database:
+# start container with embedded DB
+docker run -p 9000:9000 -it ecerquei/sonarqube /bin/bash
+```
 
-    oc new-app -f sonarqube-postgresql-template.yaml --param=SONARQUBE_VERSION=6.7
+### deploying in openshift
+
+```
+oc login ...
+oc project ...
+sh ops/deploy.sh
+```
